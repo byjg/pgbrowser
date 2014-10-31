@@ -63,6 +63,12 @@ class PGForm{
   public $fields;
 
   /**
+   * The form fields associated a input type="button" as an associative array
+   * @var type
+   */
+  public $submitFields;
+  
+  /**
    * The form's action attribute
    * @var string
    */
@@ -102,6 +108,8 @@ class PGForm{
 
   private function initFields(){
     $this->fields = array();
+	$this->submitFields = array();
+
     foreach($this->page->xpath->query('.//input|.//select', $this->dom) as $input){
       $set = true;
       $value = $input->getAttribute('value');
@@ -110,6 +118,8 @@ class PGForm{
       $tag = $input->tagName;
       switch(true){
         case $type == 'submit':
+		  $this->submitFields[$name] = $value;
+          continue 2; break;
         case $type == 'button':
           continue 2; break;
         case $type == 'checkbox':
@@ -142,6 +152,35 @@ class PGForm{
    */
   public function set($key, $value){
     $this->fields[$key] = $value;
+  }
+
+  /**
+   *
+   * @param string $key
+   * @return string
+   */
+  public function get($key) {
+	return isset($this->fields[$key]) ? $this->fields[$key] : null;
+  }
+
+  /**
+   * 
+   * @param string $key
+   */
+  public function erase($key) {
+	unset($this->fields[$key]);
+  }
+
+  public function rename($oldKey, $newKey) {
+	if (isset($this->fields[$oldKey])) {
+       $keys = array_keys($this->fields);
+       $index = array_search($oldKey, $keys);
+
+       if ($index !== false) {
+          $keys[$index] = $newKey;
+          $this->fields = array_combine($keys, $this->fields);
+       }
+	}
   }
 
 /*
