@@ -110,6 +110,8 @@ class PGBrowser{
 
   public function __destruct()
   {
+	  curl_close($this->ch);
+	  unset($this->ch);
 	  unlink($this->cookieFile);
   }
 
@@ -260,11 +262,12 @@ class PGBrowser{
       $page = new PGPage($url, $this->clean($response), $this);
     } else {
       curl_setopt($this->ch, CURLOPT_URL, $url);
+	  curl_setopt($this->ch, CURLOPT_HEADER, 1);
       if(!empty($this->lastUrl)) curl_setopt($this->ch, CURLOPT_REFERER, $this->lastUrl);
       curl_setopt($this->ch, CURLOPT_POST, false);
       $response = curl_exec($this->ch);
 
-      $page = new PGPage($url, $this->clean($response), $this);
+	  $page = new PGPage($url, $this->clean($response), $this);
 
       // deal with meta refresh
       if($this->follow_meta_refresh && ($meta = $page->at('meta[http-equiv="refresh"]'))){
