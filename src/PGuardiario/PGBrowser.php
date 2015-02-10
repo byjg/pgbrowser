@@ -22,7 +22,6 @@
  * Redistributions of files must retain the above copyright notice.
  *
  * @link http://code.nabla.net/doc/gantry4/class-phpQueryObject.html phpQueryObject
- * @link http://simplehtmldom.sourceforge.net/manual_api.htm SimpleHtmlDom
  *
  * @package PGBrowser
  * @author P Guardiario <pguardiario@gmail.com>
@@ -38,24 +37,10 @@ namespace PGuardiario;
 class PGBrowser{
 
   /**
-   * Define the constants for the parser
-   */
-  const SIMPLEHTMLDOM = 'simple';
-  const SIMPLEHTMLDOM_ADVC = 'advanced';
-  const PHPQUERY = 'phpquery';
-
-
-  /**
    * The curl handle
    * @var mixed
    */
   public $ch;
-
-  /**
-   * The parser to use (phpquery/simple-html-dom)
-   * @var string
-   */
-  public $parserType;
 
   /**
    * If true, requests will be cached in a folder named "cache"
@@ -81,9 +66,8 @@ class PGBrowser{
 
   /**
    * Return a new PGBrowser object
-   * @param string $parserType the type of parser to use (phpquery/simple-html-dom)
    */
-  function __construct($parserType = null){
+  function __construct(){
 	$this->cookieFile = tempnam("/tmp", "COOKIE");
     $this->ch = curl_init();
     curl_setopt($this->ch, CURLOPT_USERAGENT, "PGBrowser/0.0.1 (http://github.com/byjg/pgbrowser/)");
@@ -103,7 +87,6 @@ class PGBrowser{
     curl_setopt($this->ch, CURLOPT_COOKIEJAR, $this->cookieFile);
     curl_setopt($this->ch, CURLOPT_COOKIEFILE, $this->cookieFile);
     curl_setopt($this->ch, CURLOPT_HEADER, true);
-    $this->parserType = $parserType;
     if(function_exists('gc_enable')) gc_enable();
   }
 
