@@ -22,7 +22,6 @@
  * Redistributions of files must retain the above copyright notice.
  *
  * @link http://code.nabla.net/doc/gantry4/class-phpQueryObject.html phpQueryObject
- * @link http://simplehtmldom.sourceforge.net/manual_api.htm SimpleHtmlDom
  *
  * @package PGBrowser
  * @author P Guardiario <pguardiario@gmail.com>
@@ -103,16 +102,10 @@ class PGPage{
   public $html;
 
   /**
-   * The parser can be a phpQueryObject, SimpleHtmlDom object or null
+   * The parser can be a phpQueryObject object or null
    * @var mixed
    */
   public $parser;
-
-  /**
-   * The type of parser (simple, phpquery)
-   * @var string
-   */
-  public $parserType;
 
   /**
    * @param string $url The page url
@@ -143,7 +136,7 @@ class PGPage{
       $this->_forms[] = new PGForm($form, $this);
     }
     if($browser->convertUrls) $this->convertUrls();
-    $this->setParser($browser->parserType, $this->html, $this->is_xml);
+    $this->setParser($this->html, $this->is_xml);
     if(function_exists('gc_collect_cycles')) gc_collect_cycles();
   }
 
@@ -151,10 +144,8 @@ class PGPage{
    * Clean up some messes
    */
   function __destruct(){
-    if($this->browser->parserType == PGBrowser::PHPQUERY){
-      $id = phpQuery::getDocumentID($this->parser);
-      phpQuery::unloadDocuments($id);
-    }
+    $id = phpQuery::getDocumentID($this->parser);
+    phpQuery::unloadDocuments($id);
   }
 
   /**
@@ -198,23 +189,8 @@ class PGPage{
     return preg_match('/^[\.#]?\//', $q);
   }
 
-  private function setParser($parserType, $body, $is_xml){
-    switch($parserType){
-      case PGBrowser::SIMPLEHTMLDOM:
-		  $this->parserType = PGBrowser::SIMPLEHTMLDOM;
-		  $this->parser = ($is_xml ? str_get_xml($body) : str_get_html($body));
-		  break;
-
-      case PGBrowser::SIMPLEHTMLDOM_ADVC:
-		  $this->parserType = PGBrowser::SIMPLEHTMLDOM;
-		  $this->parser = str_get_html($body);
-		  break;
-
-      case PGBrowser::PHPQUERY:
-		  $this->parserType = PGBrowser::PHPQUERY;
-		  $this->parser = phpQuery::newDocumentHTML($body);
-		  break;
-    }
+  private function setParser($body, $is_xml){
+	$this->parser = phpQuery::newDocumentHTML($body);
   }
 
   // public methods
@@ -247,23 +223,13 @@ class PGPage{
    * Return the matching nodes of the expression (xpath or css)
    * @param string $query the expression to search for
    * @param string $dom the context to search
-   * @return DomNodeList|phpQueryObject|SimpleHtmlDom
+   * @return DomNodeList|phpQueryObject
    */
   public function search($query, $dom = null){
     if($this->is_xpath($query))
 		return $dom ? $this->xpath->query($query, $dom) : $this->xpath->query($query);
-    switch($this->parserType){
-      case PGBrowser::SIMPLEHTMLDOM:
-        $doc = $dom ? $dom : $this->parser;
-        return $doc->find($query);
 
-      case PGBrowser::PHPQUERY:
-        phpQuery::selectDocument($this->parser);
-        $doc = $dom ? pq($dom) : $this->parser;
-        return $doc[$query];
-
-      default:
-		return $this->xpath->query($query, $dom);
-    }
-  }
+	phpQuery::selectDocument($this->parser);
+    $doc = $dom ? pq($dom) : $this->parser;
+    return $doc[$query];
 }

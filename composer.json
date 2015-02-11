@@ -4,8 +4,7 @@
     "require": {
         "php": ">=5.3.0",
 		"pguardiario/phpuri": "*",
-        "electrolinux/phpquery": "dev-master",
-		"john_schlick/simplehtmldom": "1.0"
+        "electrolinux/phpquery": "dev-master"
     },
 	"autoload": {
 		"psr-0": {
@@ -17,17 +16,6 @@
 		{
 			"type": "vcs",
 			"url": "https://github.com/byjg/phpuri.git"
-		},
-		{
-			"type": "package",
-			"package": {
-				"name": "john_schlick/simplehtmldom",
-				"version": "1.0",
-				"dist": {
-					"url": "http://downloads.sourceforge.net/project/simplehtmldom/simplehtmldom/1.5/simplehtmldom_1_5.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fsimplehtmldom%2Ffiles%2F%3Fsource%3Dnavbar.zip",
-					"type": "zip"
-				}
-			}
 		}
 	]
 }

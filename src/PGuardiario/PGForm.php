@@ -22,7 +22,6 @@
  * Redistributions of files must retain the above copyright notice.
  *
  * @link http://code.nabla.net/doc/gantry4/class-phpQueryObject.html phpQueryObject
- * @link http://simplehtmldom.sourceforge.net/manual_api.htm SimpleHtmlDom
  *
  * @package PGBrowser
  * @author P Guardiario <pguardiario@gmail.com>

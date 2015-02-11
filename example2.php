@@ -1,7 +1,7 @@
 <?php
 require 'vendor/autoload.php';
 
-$browser = new \PGuardiario\PGBrowser(\PGuardiario\PGBrowser::PHPQUERY);
+$browser = new \PGuardiario\PGBrowser();
 $page = $browser->get('http://www.google.com/search?q=php');
 
 $result = $page->search('li.g a');
