@@ -1,21 +1,15 @@
 {
-    "name": "byjg/pgbrowser",
-    "description": "A 'pretty good' mechanize-like php library for managing cookies and submitting forms. [Fork: Totally rewrite]",
-    "require": {
-        "php": ">=5.3.0",
+	"name": "byjg/pgbrowser",
+	"description": "A 'pretty good' mechanize-like php library for managing cookies and submitting forms. [Fork: Totally rewrite]",
+	"require": {
+		"php": ">=5.3.0",
 		"pguardiario/phpuri": "*",
-        "electrolinux/phpquery": "dev-master"
-    },
+		"electrolinux/phpquery": "dev-master"
+	},
 	"autoload": {
 		"psr-0": {
 			"PGuardiario\\": ["src/"]
 		}
 	},
-	"minimum-stability": "dev",
-	"repositories": [
-		{
-			"type": "vcs",
-			"url": "https://github.com/byjg/phpuri.git"
-		}
-	]
+	"minimum-stability": "dev"
 }
