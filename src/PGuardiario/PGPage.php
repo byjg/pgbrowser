@@ -232,4 +232,5 @@ class PGPage{
 	phpQuery::selectDocument($this->parser);
     $doc = $dom ? pq($dom) : $this->parser;
     return $doc[$query];
+  }
 }
