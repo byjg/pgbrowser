@@ -76,6 +76,7 @@ class PGBrowser{
     curl_setopt($this->ch, CURLOPT_MAXREDIRS, 10);
     curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, false);
     curl_setopt($this->ch, CURLOPT_ENCODING, 'gzip,deflate,identity');
     curl_setopt($this->ch, CURLOPT_HTTPHEADER, array(
       "Accept-Charset:	ISO-8859-1,utf-8;q=0.7,*;q=0.7",
@@ -92,6 +93,8 @@ class PGBrowser{
 
   public function __destruct()
   {
+	  curl_close($this->ch);
+	  unset($this->ch);
 	  unlink($this->cookieFile);
   }
 
@@ -242,11 +245,12 @@ class PGBrowser{
       $page = new PGPage($url, $this->clean($response), $this);
     } else {
       curl_setopt($this->ch, CURLOPT_URL, $url);
+	  curl_setopt($this->ch, CURLOPT_HEADER, 1);
       if(!empty($this->lastUrl)) curl_setopt($this->ch, CURLOPT_REFERER, $this->lastUrl);
       curl_setopt($this->ch, CURLOPT_POST, false);
       $response = curl_exec($this->ch);
 
-      $page = new PGPage($url, $this->clean($response), $this);
+	  $page = new PGPage($url, $this->clean($response), $this);
 
       // deal with meta refresh
       if($this->follow_meta_refresh && ($meta = $page->at('meta[http-equiv="refresh"]'))){
