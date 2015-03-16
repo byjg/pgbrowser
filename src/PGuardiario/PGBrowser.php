@@ -249,7 +249,9 @@ class PGBrowser{
       if(!empty($this->lastUrl)) curl_setopt($this->ch, CURLOPT_REFERER, $this->lastUrl);
       curl_setopt($this->ch, CURLOPT_POST, false);
       $response = curl_exec($this->ch);
-
+      if($response === false) {
+        throw new \Exception(curl_error($this->ch));
+      }
 	  $page = new PGPage($url, $this->clean($response), $this);
 
       // deal with meta refresh
@@ -262,6 +264,9 @@ class PGBrowser{
           if(!empty($this->lastUrl)) curl_setopt($this->ch, CURLOPT_REFERER, $this->lastUrl);
           curl_setopt($this->ch, CURLOPT_POST, false);
           $response = curl_exec($this->ch);
+          if($response === false) {
+            throw new \Exception(curl_error($this->ch));
+          }
           $page = new PGPage($url, $this->clean($response), $this);
         }
       }
@@ -290,6 +295,9 @@ class PGBrowser{
       curl_setopt($this->ch, CURLOPT_POST, true);
       curl_setopt($this->ch, CURLOPT_POSTFIELDS, $body);
       $response = curl_exec($this->ch);
+      if($response === false) {
+        throw new \Exception(curl_error($this->ch));
+      }
       $page = new PGPage($url, $this->clean($response), $this);
       if($this->useCache) $this->saveCache($url . $body, $response);
       if($headers) $this->setHeaders(preg_replace('/(.*?:).*/','\1', $headers)); // clear headers
