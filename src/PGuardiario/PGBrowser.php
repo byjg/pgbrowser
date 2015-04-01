@@ -89,13 +89,15 @@ class PGBrowser{
     curl_setopt($this->ch, CURLOPT_COOKIEFILE, $this->cookieFile);
     curl_setopt($this->ch, CURLOPT_HEADER, true);
     if(function_exists('gc_enable')) gc_enable();
+
+	register_shutdown_function(array($this, 'shutdown'));
   }
 
-  public function __destruct()
+  public function shutdown()
   {
-	  curl_close($this->ch);
-	  unset($this->ch);
-	  unlink($this->cookieFile);
+	curl_close($this->ch);
+	unset($this->ch);
+	unlink($this->cookieFile);
   }
 
   // private methods
