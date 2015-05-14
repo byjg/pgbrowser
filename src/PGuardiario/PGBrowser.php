@@ -95,9 +95,12 @@ class PGBrowser{
 
   public function shutdown()
   {
-	curl_close($this->ch);
-	unset($this->ch);
-	unlink($this->cookieFile);
+	if (isset($this->ch))
+	{
+		curl_close($this->ch);
+		unset($this->ch);
+		unlink($this->cookieFile);
+	}
   }
 
   // private methods
