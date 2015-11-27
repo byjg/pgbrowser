@@ -190,6 +190,15 @@ class PGBrowser{
    * @param int $timeout
    */
   public function setTimeout($timeout){
+    curl_setopt($this->ch, CURLOPT_TIMEOUT, $timeout);
+    curl_setopt($this->ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+  }
+
+  /**
+   * Set curl timeout in milliseconds
+   * @param int $timeout
+   */
+  public function setTimeoutMs($timeout){
     curl_setopt($this->ch, CURLOPT_TIMEOUT_MS, $timeout);
     curl_setopt($this->ch, CURLOPT_CONNECTTIMEOUT_MS, $timeout);
   }
