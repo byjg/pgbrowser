@@ -109,7 +109,7 @@ class PGForm{
     $this->fields = array();
 	$this->submitFields = array();
 
-    foreach($this->page->xpath->query('.//input|.//select', $this->dom) as $input){
+    foreach($this->page->xpath->query('.//input|.//select|.//textarea', $this->dom) as $input){
       $set = true;
       $value = $input->getAttribute('value');
       $type = $input->getAttribute('type');
@@ -137,6 +137,8 @@ class PGForm{
               $value = '';
             }
           }
+        case $tag == 'textarea':
+          $value = $input->textContent; break;
       }
       if($set) $this->fields[$name] = $value;
     }
