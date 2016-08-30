@@ -63,6 +63,8 @@ class PGBrowser{
   private $visited;
 
   private $cookieFile;
+  
+  protected $checkSSL = false;
 
   /**
    * Return a new PGBrowser object
@@ -75,8 +77,8 @@ class PGBrowser{
     curl_setopt($this->ch, CURLOPT_AUTOREFERER, true);
     curl_setopt($this->ch, CURLOPT_MAXREDIRS, 10);
     curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, true);
-    curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, 2);
+    curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, $this->getCheckSSL());
+    curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, ($this->getCheckSSL() ? 2 : false));
     curl_setopt($this->ch, CURLOPT_ENCODING, 'gzip,deflate,identity');
     curl_setopt($this->ch, CURLOPT_HTTPHEADER, array(
       "Accept-Charset:	ISO-8859-1,utf-8;q=0.7,*;q=0.7",
@@ -163,6 +165,14 @@ class PGBrowser{
    */
   public function setopt($key, $value){
     curl_setopt($this->ch, $key, $value);
+  }
+  
+  public function setCheckSSL($value) {
+    $this->checkSSL = $value;
+  }
+  
+  public function getCheckSSL() {
+    return $this->checkSSL;
   }
 
   /**
