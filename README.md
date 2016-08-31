@@ -39,3 +39,12 @@ $browser->useCache = true; // turn on cacheing
 $browser->useCache = false; // turn off cacheing
 ```
 
+## Verify SSL Certificates
+
+The SSL certificate now gets checked to ensure it is valid and the host name matches. PHP must be setup correctly for this work work otherwise the connection to https sites will be closed.
+
+A compiled cacert.pem can be downloaded from the [cURL project webpage](https://curl.haxx.se/docs/caextract.html). add the following setting to  your php.ini
+
+```
+openssl.cafile=<path_to_cacert.pem>
+```

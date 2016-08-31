@@ -75,8 +75,8 @@ class PGBrowser{
     curl_setopt($this->ch, CURLOPT_AUTOREFERER, true);
     curl_setopt($this->ch, CURLOPT_MAXREDIRS, 10);
     curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, false);
+    curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, true);
+    curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, 2);
     curl_setopt($this->ch, CURLOPT_ENCODING, 'gzip,deflate,identity');
     curl_setopt($this->ch, CURLOPT_HTTPHEADER, array(
       "Accept-Charset:	ISO-8859-1,utf-8;q=0.7,*;q=0.7",
@@ -281,6 +281,7 @@ class PGBrowser{
           if($response === false) {
             throw new \Exception(curl_error($this->ch));
           }
+          $url = curl_getinfo($this->ch, CURLINFO_EFFECTIVE_URL); //extract the url from the header response
           $page = new PGPage($url, $this->clean($response), $this);
         }
       }
@@ -312,6 +313,7 @@ class PGBrowser{
       if($response === false) {
         throw new \Exception(curl_error($this->ch));
       }
+      $url = curl_getinfo($this->ch, CURLINFO_EFFECTIVE_URL); //extract the url from the header response
       $page = new PGPage($url, $this->clean($response), $this);
       if($this->useCache) $this->saveCache($url . $body, $response);
       if($headers) $this->setHeaders(preg_replace('/(.*?:).*/','\1', $headers)); // clear headers
