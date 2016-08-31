@@ -72,7 +72,7 @@ class PGBrowser{
   function __construct(){
 	$this->cookieFile = tempnam("/tmp", "COOKIE");
     $this->ch = curl_init();
-    curl_setopt($this->ch, CURLOPT_USERAGENT, "PGBrowser/0.0.1 (http://github.com/byjg/pgbrowser/)");
+    curl_setopt($this->ch, CURLOPT_USERAGENT, "PGBrowser/0.0.2 (http://github.com/byjg/pgbrowser/)");
     curl_setopt($this->ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($this->ch, CURLOPT_AUTOREFERER, true);
     curl_setopt($this->ch, CURLOPT_MAXREDIRS, 10);
