@@ -48,3 +48,11 @@ A compiled cacert.pem can be downloaded from the [cURL project webpage](https://
 ```
 openssl.cafile=<path_to_cacert.pem>
 ```
+
+To enable the SSL certificate check use:
+
+```
+$pgbrowser->setCheckSSL(true | false);
+```
+
+
