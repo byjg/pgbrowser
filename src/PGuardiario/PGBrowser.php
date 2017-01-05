@@ -43,7 +43,7 @@ class PGBrowser
      *
      * @var mixed
      */
-    public $ch;
+    public $curlHandle;
 
     /**
      * If true, requests will be cached in a folder named "cache"
@@ -74,29 +74,34 @@ class PGBrowser
 
     /**
      * Return a new PGBrowser object
+     *
+     * @param string|null $persistentCookie
      */
-    public function __construct()
+    public function __construct($persistentCookie = null)
     {
         $this->cookieFile = tempnam("/tmp", "COOKIE");
-        $this->ch = curl_init();
-        curl_setopt($this->ch, CURLOPT_USERAGENT, "PGBrowser/0.0.2 (http://github.com/byjg/pgbrowser/)");
-        curl_setopt($this->ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($this->ch, CURLOPT_AUTOREFERER, true);
-        curl_setopt($this->ch, CURLOPT_MAXREDIRS, 10);
-        curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, $this->getCheckSSL());
-        curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, ($this->getCheckSSL() ? 2 : false));
-        curl_setopt($this->ch, CURLOPT_ENCODING, 'gzip,deflate,identity');
-        curl_setopt($this->ch, CURLOPT_HTTPHEADER, [
-            "Accept-Charset:	ISO-8859-1,utf-8;q=0.7,*;q=0.7",
-            "Accept-Language:	en-us,en;q=0.5",
+        if ($persistentCookie !== null) {
+            $this->cookieFile = $persistentCookie;
+        }
+        $this->curlHandle = curl_init();
+        curl_setopt($this->curlHandle, CURLOPT_USERAGENT, "PGBrowser/0.0.2 (http://github.com/byjg/pgbrowser/)");
+        curl_setopt($this->curlHandle, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($this->curlHandle, CURLOPT_AUTOREFERER, true);
+        curl_setopt($this->curlHandle, CURLOPT_MAXREDIRS, 10);
+        curl_setopt($this->curlHandle, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($this->curlHandle, CURLOPT_SSL_VERIFYPEER, $this->getCheckSSL());
+        curl_setopt($this->curlHandle, CURLOPT_SSL_VERIFYHOST, ($this->getCheckSSL() ? 2 : false));
+        curl_setopt($this->curlHandle, CURLOPT_ENCODING, 'gzip,deflate,identity');
+        curl_setopt($this->curlHandle, CURLOPT_HTTPHEADER, [
+            "Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7",
+            "Accept-Language: en-us,en;q=0.5",
             "Connection: keep-alive",
             "Keep-Alive: 300",
             "Expect:",
         ]);
-        curl_setopt($this->ch, CURLOPT_COOKIEJAR, $this->cookieFile);
-        curl_setopt($this->ch, CURLOPT_COOKIEFILE, $this->cookieFile);
-        curl_setopt($this->ch, CURLOPT_HEADER, true);
+        curl_setopt($this->curlHandle, CURLOPT_COOKIEJAR, $this->cookieFile);
+        curl_setopt($this->curlHandle, CURLOPT_COOKIEFILE, $this->cookieFile);
+        curl_setopt($this->curlHandle, CURLOPT_HEADER, true);
         if (function_exists('gc_enable')) {
             gc_enable();
         }
@@ -106,9 +111,9 @@ class PGBrowser
 
     public function shutdown()
     {
-        if (isset($this->ch)) {
-            curl_close($this->ch);
-            unset($this->ch);
+        if (isset($this->curlHandle)) {
+            curl_close($this->curlHandle);
+            unset($this->curlHandle);
             unlink($this->cookieFile);
         }
     }
@@ -138,13 +143,11 @@ class PGBrowser
         if (!$this->expireAfter) {
             return false;
         }
-        $fn = $this->cacheFilename($url);
-        if (!file_exists($fn)) {
-            trigger_error('cache does not exist for: ' . $url, E_USER_WARNING);
-
+        $cacheFilename = $this->cacheFilename($url);
+        if (!file_exists($cacheFilename)) {
             return true;
         }
-        $age = microtime(true) - filemtime($fn);
+        $age = microtime(true) - filemtime($cacheFilename);
         if ($age < $this->expireAfter) {
             return false;
         }
@@ -191,7 +194,7 @@ class PGBrowser
      */
     public function setopt($key, $value)
     {
-        curl_setopt($this->ch, $key, $value);
+        curl_setopt($this->curlHandle, $key, $value);
     }
 
     public function setCheckSSL($value)
@@ -214,20 +217,20 @@ class PGBrowser
      */
     public function setProxy($host, $port, $user = null, $password = null)
     {
-        curl_setopt($this->ch, CURLOPT_PROXY, "http://$host:$port");
+        curl_setopt($this->curlHandle, CURLOPT_PROXY, "http://$host:$port");
         if (!empty($user)) {
-            curl_setopt($this->ch, CURLOPT_PROXYUSERPWD, "$user:$password");
+            curl_setopt($this->curlHandle, CURLOPT_PROXYUSERPWD, "$user:$password");
         }
     }
 
     /**
      * Set the user agent
      *
-     * @param string $user_agent
+     * @param string $userAgent
      */
-    public function setUserAgent($user_agent)
+    public function setUserAgent($userAgent)
     {
-        curl_setopt($this->ch, CURLOPT_USERAGENT, $user_agent);
+        curl_setopt($this->curlHandle, CURLOPT_USERAGENT, $userAgent);
     }
 
     /**
@@ -237,8 +240,8 @@ class PGBrowser
      */
     public function setTimeout($timeout)
     {
-        curl_setopt($this->ch, CURLOPT_TIMEOUT, $timeout);
-        curl_setopt($this->ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+        curl_setopt($this->curlHandle, CURLOPT_TIMEOUT, $timeout);
+        curl_setopt($this->curlHandle, CURLOPT_CONNECTTIMEOUT, $timeout);
     }
 
     /**
@@ -248,8 +251,8 @@ class PGBrowser
      */
     public function setTimeoutMs($timeout)
     {
-        curl_setopt($this->ch, CURLOPT_TIMEOUT_MS, $timeout);
-        curl_setopt($this->ch, CURLOPT_CONNECTTIMEOUT_MS, $timeout);
+        curl_setopt($this->curlHandle, CURLOPT_TIMEOUT_MS, $timeout);
+        curl_setopt($this->curlHandle, CURLOPT_CONNECTTIMEOUT_MS, $timeout);
     }
 
     /**
@@ -309,7 +312,7 @@ class PGBrowser
      */
     public function setHeaders($headers)
     {
-        curl_setopt($this->ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($this->curlHandle, CURLOPT_HTTPHEADER, $headers);
     }
 
     public $follow_meta_refresh = false;
@@ -323,48 +326,55 @@ class PGBrowser
      */
     public function get($url)
     {
-        if ($this->useCache && file_exists($this->cacheFilename($url))) {
-            if ($this->cacheExpired($url)) {
-                return $this->get($url);
-            }
-            $response = file_get_contents($this->cacheFilename($url));
-            $page = new PGPage($url, $this->clean($response), $this);
-        } else {
-            curl_setopt($this->ch, CURLOPT_URL, $url);
-            curl_setopt($this->ch, CURLOPT_HEADER, 1);
-            if (!empty($this->lastUrl)) {
-                curl_setopt($this->ch, CURLOPT_REFERER, $this->lastUrl);
-            }
-            curl_setopt($this->ch, CURLOPT_POST, false);
-            $response = curl_exec($this->ch);
-            if ($response === false) {
-                throw new \Exception(curl_error($this->ch));
-            }
-            $page = new PGPage($url, $this->clean($response), $this);
+        if ($this->useCache && !$this->cacheExpired($url)) {
+            return $this->getFromCache($url);
+        }
 
-            // deal with meta refresh
-            if ($this->follow_meta_refresh && ($meta = $page->at('meta[http-equiv="refresh"]'))) {
-                if (!preg_match('/^\d+; url=(.*)$/', $meta->content, $m)) {
-                    echo "bad redirect meta: " . $meta->content;
-                } else {
-                    $url = $m[1];
-                    curl_setopt($this->ch, CURLOPT_URL, $url);
-                    if (!empty($this->lastUrl)) {
-                        curl_setopt($this->ch, CURLOPT_REFERER, $this->lastUrl);
-                    }
-                    curl_setopt($this->ch, CURLOPT_POST, false);
-                    $response = curl_exec($this->ch);
-                    if ($response === false) {
-                        throw new \Exception(curl_error($this->ch));
-                    }
-                    $url = curl_getinfo($this->ch, CURLINFO_EFFECTIVE_URL); //extract the url from the header response
-                    $page = new PGPage($url, $this->clean($response), $this);
+        curl_setopt($this->curlHandle, CURLOPT_URL, $url);
+        curl_setopt($this->curlHandle, CURLOPT_HEADER, 1);
+        if (!empty($this->lastUrl)) {
+            curl_setopt($this->curlHandle, CURLOPT_REFERER, $this->lastUrl);
+        }
+        curl_setopt($this->curlHandle, CURLOPT_POST, false);
+        $response = curl_exec($this->curlHandle);
+        if ($response === false) {
+            throw new \Exception(curl_error($this->curlHandle));
+        }
+        $page = new PGPage($url, $this->clean($response), $this);
+
+        // deal with meta refresh
+        if ($this->follow_meta_refresh && ($meta = $page->at('meta[http-equiv="refresh"]'))) {
+            if (!preg_match('/^\d+; url=(.*)$/', $meta->content, $matches)) {
+                echo "bad redirect meta: " . $meta->content;
+            } else {
+                $url = $matches[1];
+                curl_setopt($this->curlHandle, CURLOPT_URL, $url);
+                if (!empty($this->lastUrl)) {
+                    curl_setopt($this->curlHandle, CURLOPT_REFERER, $this->lastUrl);
                 }
-            }
-            if ($this->useCache) {
-                $this->saveCache($url, $response);
+                curl_setopt($this->curlHandle, CURLOPT_POST, false);
+                $response = curl_exec($this->curlHandle);
+                if ($response === false) {
+                    throw new \Exception(curl_error($this->curlHandle));
+                }
+                $url = curl_getinfo($this->curlHandle, CURLINFO_EFFECTIVE_URL); //extract the url from the header response
+                $page = new PGPage($url, $this->clean($response), $this);
             }
         }
+        if ($this->useCache) {
+            $this->saveCache($url, $response);
+        }
+
+        $this->lastUrl = $url;
+
+        return $page;
+    }
+
+    protected function getFromCache($url)
+    {
+        $response = file_get_contents($this->cacheFilename($url));
+        $page = new PGPage($url, $this->clean($response), $this);
+
         $this->lastUrl = $url;
 
         return $page;
@@ -389,17 +399,17 @@ class PGBrowser
             $page = new PGPage($url, $this->clean($response), $this);
         } else {
             $this->setHeaders($headers);
-            curl_setopt($this->ch, CURLOPT_URL, $url);
+            curl_setopt($this->curlHandle, CURLOPT_URL, $url);
             if (!empty($this->lastUrl)) {
-                curl_setopt($this->ch, CURLOPT_REFERER, $this->lastUrl);
+                curl_setopt($this->curlHandle, CURLOPT_REFERER, $this->lastUrl);
             }
-            curl_setopt($this->ch, CURLOPT_POST, true);
-            curl_setopt($this->ch, CURLOPT_POSTFIELDS, $body);
-            $response = curl_exec($this->ch);
+            curl_setopt($this->curlHandle, CURLOPT_POST, true);
+            curl_setopt($this->curlHandle, CURLOPT_POSTFIELDS, $body);
+            $response = curl_exec($this->curlHandle);
             if ($response === false) {
-                throw new \Exception(curl_error($this->ch));
+                throw new \Exception(curl_error($this->curlHandle));
             }
-            $url = curl_getinfo($this->ch, CURLINFO_EFFECTIVE_URL); //extract the url from the header response
+            $url = curl_getinfo($this->curlHandle, CURLINFO_EFFECTIVE_URL); //extract the url from the header response
             $page = new PGPage($url, $this->clean($response), $this);
             if ($this->useCache) {
                 $this->saveCache($url . $body, $response);
