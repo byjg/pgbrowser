@@ -67,6 +67,7 @@ class PGBrowser
     public $convertUrls = false;
     private $lastUrl;
     private $visited;
+    private $cookieIsPersistent = false;
 
     private $cookieFile;
 
@@ -82,6 +83,7 @@ class PGBrowser
         $this->cookieFile = tempnam("/tmp", "COOKIE");
         if ($persistentCookie !== null) {
             $this->cookieFile = $persistentCookie;
+            $this->cookieIsPersistent = true;
         }
         $this->curlHandle = curl_init();
         curl_setopt($this->curlHandle, CURLOPT_USERAGENT, "PGBrowser/0.0.2 (http://github.com/byjg/pgbrowser/)");
@@ -114,7 +116,9 @@ class PGBrowser
         if (isset($this->curlHandle)) {
             curl_close($this->curlHandle);
             unset($this->curlHandle);
-            unlink($this->cookieFile);
+            if (!$this->cookieIsPersistent) {
+                unlink($this->cookieFile);
+            }
         }
     }
 
